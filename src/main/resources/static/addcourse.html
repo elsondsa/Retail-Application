@@ -1,0 +1,88 @@
+<html>
+
+<head>
+    <title>Courses View Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.css" />
+</head>
+
+<body>
+
+    <h3>-- Display courses --</h3>
+    <div class="container">
+
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Search Courses</span>
+            </div>
+            <input id="searchText" type="text" class="form-control" placeholder="By Title" aria-label="Username"
+                aria-describedby="basic-addon1">
+        </div>
+        <div id="display" class="row"></div>
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+
+    <script>
+
+        var data = [];
+        
+        function deleteCourse(id){
+        	console.log('deleting course with id: ', id);
+        	var url = 'api/courses/' + id;
+        	$.ajax({
+        		  url: url,
+        		  method: 'DELETE'
+        		}).done(function() {
+        		 console.log('deletion done')
+        		 alert('course delete');
+        		});
+        }
+
+        function render(result) {
+            $.each(result, function (i, field) {
+                console.log(i, field)
+                var template = `
+            <div class="card" style="width: 18rem;">
+                <img src="https://via.placeholder.com/150" class="card-img-top" alt="image for course"/>
+                <div class="card-body">
+                <h5 class="card-title">Title: ${field.title}</h5>
+                <p class="card-text">Category: ${field.category}</p>
+                <p class="card-text">Type: ${field.type}</p>
+                <p class="card-text">Date: ${field.date}</p>
+                <button onclick="deleteCourse(${field.id})" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+            `
+                // console.log(template)
+                $("#display").append(template + " ");
+            })
+        }
+
+
+
+        $(document).ready(function () {
+            console.log("ready!");
+            $("#searchText").keyup(() => {
+                console.log('keyup event', $("#searchText").val())
+                var filteredList = data.filter((element)=> element.title.startsWith($("#searchText").val()))
+                console.log(filteredList)
+                $( "#display" ).empty();
+                render(filteredList);
+            })
+
+            $.getJSON("api/courses/", function (result) {
+                console.log(result)
+                data = result;
+                render(result)
+
+            });
+
+
+        });
+
+    </script>
+</body>
+
+</html>
